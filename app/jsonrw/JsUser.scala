@@ -14,17 +14,17 @@ case class Resident(name: String, age: Int, role: Option[String])
 object JsUser {
   implicit val userReads: Reads[User] = (
     (JsPath \ "id").readNullable[String]  and
-      (JsPath \ "firstName").readNullable[String] and
-      (JsPath \ "lastName").readNullable[String] and
-      (JsPath \ "email").readNullable[String] and
-      (JsPath \ "localeId").readNullable[String]
+      (JsPath \ "firstName").read[String] and
+      (JsPath \ "lastName").read[String] and
+      (JsPath \ "email").read[String] and
+      (JsPath \ "localeId").read[String]
   )(User.apply _)
 
   implicit val userWrites: Writes[User] = (
     (JsPath \ "id").writeNullable[String]  and
-      (JsPath \ "firstName").writeNullable[String] and
-      (JsPath \ "lastName").writeNullable[String] and
-      (JsPath \ "email").writeNullable[String] and
-      (JsPath \ "localeId").writeNullable[String]
+      (JsPath \ "firstName").write[String] and
+      (JsPath \ "lastName").write[String] and
+      (JsPath \ "email").write[String] and
+      (JsPath \ "localeId").write[String]
   )(unlift(User.unapply _))
 }

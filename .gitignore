@@ -1,6 +1,9 @@
 *.class
 *.log
 
+# idea specific
+.idea/
+
 # sbt specific
 .cache
 .history
@@ -15,3 +18,7 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+
+# Play
+logs
+RUNNING_PID

@@ -13,7 +13,7 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import akka.pattern.ask
 import akka.util.Timeout
-import services.UserServices
+import services.{ServiceResponse, UserServices, ValidationError, InternalError}
 import services.UserServices._
 import jsonrw.JsUser._
 import models.User
@@ -41,8 +41,10 @@ class UserController @Inject()(actorSystem: ActorSystem)(implicit exec: Executio
   def createUser() = Action.async(BodyParsers.parse.json) { request =>
     request.body.validate[User].fold(
       error => Future.successful(BadRequest(Json.toJson("bad request"))),
-      user => (userServices ? CreateUserRequest(user)).mapTo[CreateUserResponse].map { response =>
-        Ok(Json.toJson(response.user))
+      user => (userServices ? CreateUserRequest(user)).mapTo[ServiceResponse].map {
+        case createUserResponse : CreateUserResponse => Ok(Json.toJson(createUserResponse.user))
+        case validationError : ValidationError => Conflict(Json.toJson(validationError.messages))
+        case internalError : InternalError => InternalServerError(Json.toJson(internalError.messages))
       }
     )
   }
@@ -50,7 +52,7 @@ class UserController @Inject()(actorSystem: ActorSystem)(implicit exec: Executio
   def updateUser(userId: String) = Action.async(BodyParsers.parse.json) { request =>
     request.body.validate[User].fold(
       error => Future.successful(BadRequest(Json.toJson("bad request"))),
-      user => (userServices ? UpdateUserRequest(User(Some(userId), user.firstName, user.lastName, user.email, user.localeId)))
+      user => (userServices ? UpdateUserRequest(user copy (id = Some(userId))))
         .mapTo[UpdateUserResponse].map { response =>
         Ok(Json.toJson(response.status))
       }

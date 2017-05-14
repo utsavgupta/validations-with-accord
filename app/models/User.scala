@@ -9,8 +9,8 @@ import java.util.UUID
   * Created by utsav on 13/5/17.
   */
 
-case class User(id: Option[String], firstName: Option[String],
-                lastName: Option[String], email: Option[String], localeId: Option[String])
+case class User(id: Option[String], firstName: String,
+                lastName: String, email: String, localeId: String)
 
 object User extends DataAccessObject[User] {
 
@@ -23,7 +23,7 @@ object User extends DataAccessObject[User] {
   override def insert(user: User): Future[User] = Future {
     val uuid = UUID.randomUUID().toString
 
-    val newUser = User(Some(uuid), user.firstName, user.lastName, user.email, user.localeId)
+    val newUser = user.copy(id = Some(uuid))
 
     storage += newUser
 
