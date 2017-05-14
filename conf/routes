@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# User routes
+GET         /users                                              controllers.UserController.getUsers
+GET         /users/:userId                                      controllers.UserController.getUser(userId)
+POST        /users                                              controllers.UserController.createUser
+PUT         /users/:userId                                      controllers.UserController.updateUser(userId)
+DELETE      /users/:userId                                      controllers.UserController.deleteUser(userId)
+
