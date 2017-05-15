@@ -1,4 +1,4 @@
-package models.filters
+package filters
 
 import akka.actor.{Actor, ActorRef}
 

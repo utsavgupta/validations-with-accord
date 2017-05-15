@@ -6,7 +6,7 @@ import models.User
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.wix.accord._
-import models.filters.ActorWithFilter
+import filters.ActorWithFilter
 
 import scala.concurrent.Future
 
