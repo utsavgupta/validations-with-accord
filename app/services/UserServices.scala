@@ -6,6 +6,7 @@ import models.User
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.wix.accord._
+import models.filters.ActorWithFilter
 
 import scala.concurrent.Future
 
@@ -31,7 +32,7 @@ object UserServices {
   case class DeleteUserResponse(status: Boolean) extends ServiceResponse
 }
 
-class UserServices extends Actor {
+class UserServices extends ActorWithFilter {
   import services.UserServices._
   import validators.UserValidators._
 
@@ -53,20 +54,20 @@ class UserServices extends Actor {
       sender ! GetUsersResponse(users)
     }
 
-  private def createUser(sender: ActorRef, createUserRequest: CreateUserRequest) = {
-    validate(createUserRequest.user) match {
-      case Success =>
-        User.insert (createUserRequest.user) map {
-          user =>
-            sender ! CreateUserResponse (user)
-        }
-      case Failure(e) => Future.successful( sender ! ValidationError(e.map(v => Descriptions.render(v.description) + " " + v.constraint).toList) )
+  private def createUser(sender: ActorRef, createUserRequest: CreateUserRequest) =
+    beforeFilter(createUserRequest.user) {
+      User.insert (createUserRequest.user) map {
+        user =>
+          sender ! CreateUserResponse (user)
+      }
     }
-  }
 
   private def updateUser(sender: ActorRef, updateUserRequest: UpdateUserRequest) =
-    User.update(updateUserRequest.user) map { response =>
-      sender ! UpdateUserResponse(response)
+    beforeFilter(updateUserRequest.user) {
+      User.update(updateUserRequest.user) map {
+        response =>
+          sender ! UpdateUserResponse(response)
+      }
     }
 
   private def deleteUser(sender: ActorRef, deleteUserRequest: DeleteUserRequest) =

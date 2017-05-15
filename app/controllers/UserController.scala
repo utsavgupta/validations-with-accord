@@ -42,7 +42,7 @@ class UserController @Inject()(actorSystem: ActorSystem)(implicit exec: Executio
     request.body.validate[User].fold(
       error => Future.successful(BadRequest(Json.toJson("bad request"))),
       user => (userServices ? CreateUserRequest(user)).mapTo[ServiceResponse].map {
-        case createUserResponse : CreateUserResponse => Ok(Json.toJson(createUserResponse.user))
+        case createUserResponse : CreateUserResponse => Created(Json.toJson(createUserResponse.user))
         case validationError : ValidationError => Conflict(Json.toJson(validationError.messages))
         case internalError : InternalError => InternalServerError(Json.toJson(internalError.messages))
       }
@@ -53,8 +53,10 @@ class UserController @Inject()(actorSystem: ActorSystem)(implicit exec: Executio
     request.body.validate[User].fold(
       error => Future.successful(BadRequest(Json.toJson("bad request"))),
       user => (userServices ? UpdateUserRequest(user copy (id = Some(userId))))
-        .mapTo[UpdateUserResponse].map { response =>
-        Ok(Json.toJson(response.status))
+        .mapTo[ServiceResponse].map {
+        case updateUserResponse : UpdateUserResponse => Ok(Json.toJson(updateUserResponse.status))
+        case validationError : ValidationError => Conflict(Json.toJson(validationError.messages))
+        case internalError : InternalError => InternalServerError(Json.toJson(internalError.messages))
       }
     )
   }
